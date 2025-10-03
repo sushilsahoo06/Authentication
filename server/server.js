@@ -3,13 +3,20 @@ import cors from "cors";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
+import dotenv from 'dotenv'
+dotenv.config()
 
 mongoose
   .connect(
-    "mongodb+srv://sushilsahoo825:Sushil8260@cluster0.keenyyn.mongodb.net"
+    process.env.MONGODB_URL,{useNewUrlParser: true,
+    useUnifiedTopology: true,}
   )
-  .then(() => console.log("MongoDB connected !!"))
-  .catch((error) => console.log(error));
+  .then(() => console.log("✅ MongoDB connected!!"))
+  .catch((error) => {
+    console.error("MongoDB connection error:", error);
+    process.exit(1); // Exit if DB fails
+  });
+
 
 const app = express();
 const port = process.env.PORT || 4000;
