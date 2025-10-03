@@ -1,44 +1,53 @@
-const User = require("../../server/models/userModel");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+import User from "../models/userModel.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
-const register = async (req, res) => {
+// Register
+export const register = async (req, res) => {
   const { userName, email, password } = req.body;
+
   if (!userName || !email || !password) {
-    return res.status(400).json({ success: false, message: "Some error occured !" });
+    return res.status(400).json({ success: false, message: "Some error occurred!" });
   }
+
   try {
     const checkUser = await User.findOne({ email });
     if (checkUser) {
       return res.status(409).json({
         success: false,
-        message: "User already exist !",
+        message: "User already exists!",
       });
     }
+
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = new User({
       userName,
       email,
       password: hashedPassword,
     });
+
     const savedUser = await newUser.save();
+
     const token = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+
     return res.status(200).json({
       success: true,
       message: "Registration successful",
-      user:{
-        id:savedUser._id,
-        userName:savedUser.userName,
-        email:savedUser.email
-      }
+      user: {
+        id: savedUser._id,
+        userName: savedUser.userName,
+        email: savedUser.email,
+      },
     });
   } catch (error) {
     console.error("Register Error:", error);
@@ -48,16 +57,18 @@ const register = async (req, res) => {
     });
   }
 };
-//login
 
-const login = async (req, res) => {
+// Login
+export const login = async (req, res) => {
   const { email, password } = req.body;
+
   if (!email || !password) {
     return res.json({
       success: false,
-      message: "Email and Password Required !",
+      message: "Email and Password required!",
     });
   }
+
   try {
     const checkUser = await User.findOne({ email });
     if (!checkUser) {
@@ -66,49 +77,53 @@ const login = async (req, res) => {
         message: "Invalid Email",
       });
     }
-    const checkPassword = await bcrypt.compare(password, checkUser.password);
 
+    const checkPassword = await bcrypt.compare(password, checkUser.password);
     if (!checkPassword) {
       return res.json({
         success: false,
         message: "Invalid Password",
       });
     }
+
     const token = jwt.sign({ id: checkUser._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+
     return res.status(200).json({
       success: true,
       message: "Login successful",
-      user:{
-        id:checkUser._id,
-        userName:checkUser.userName,
-        email:checkUser.email
-      }
+      user: {
+        id: checkUser._id,
+        userName: checkUser.userName,
+        email: checkUser.email,
+      },
     });
   } catch (error) {
     console.error("Login Error:", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server Error",
+      message: "Internal Server Error",
     });
   }
 };
-//logout
 
-const logout = async (req, res) => {
+// Logout
+export const logout = async (req, res) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
     });
+
     return res.status(200).json({
       success: true,
       message: "Logged out successfully",
@@ -121,28 +136,27 @@ const logout = async (req, res) => {
     });
   }
 };
-const authMiddleware=async(req,res,next)=>{
-  const token =req.cookies.token;
-  if(!token){
+
+// Middleware
+export const authMiddleware = async (req, res, next) => {
+  const token = req.cookies.token;
+
+  if (!token) {
     return res.status(401).json({
       success: false,
-      message: "Unauthorised user!",
+      message: "Unauthorized user!",
     });
   }
-  try{
-    const decoded=jwt.verify(token,process.env.JWT_SECRET);
-    req.user=decoded;
-    next();
 
-  }catch(error){
-    console.error(" UnauthError:", error);
-    return res.status(500).json({
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    console.error("Unauth Error:", error);
+    return res.status(401).json({
       success: false,
-      message: "Internal Server Error",
+      message: "Invalid or expired token",
     });
   }
-    
-}
-module.exports={
-  register,login,logout,authMiddleware
-}
+};

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  userName: { type: String, required: true }, // ✅ match your controller (it used userName, not name)
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   verifyOTP: { type: String, default: "" },
@@ -10,5 +10,7 @@ const userSchema = new mongoose.Schema({
   resetOtp: { type: Number, default: "" },
   resetOtpExpireAt: { type: Number, default: "" },
 });
- const User=mongoose.model("User",userSchema)
- exports.model=User;
+
+const User = mongoose.model("User", userSchema);
+
+export default User;

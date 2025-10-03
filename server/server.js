@@ -3,6 +3,8 @@ import cors from "cors";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
+import router from '../server/router/auth.js'
+
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -16,8 +18,6 @@ mongoose
     console.error("MongoDB connection error:", error);
     process.exit(1); // Exit if DB fails
   });
-
-
 const app = express();
 const port = process.env.PORT || 4000;
 
@@ -28,3 +28,5 @@ app.use(cors({ credentials: true }));
 app.listen(port, () => console.log(`Servere started on Port:${port}`));
 
 app.get("/", (req, res) => res.send("API working !!"));
+app.use('/api/auth',router);
+
