@@ -1,9 +1,13 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import nodemailer from '../config/nodemailer.js'
+import dotenv from 'dotenv'
+dotenv.config()
 
 // Register
 export const register = async (req, res) => {
+  console.log("Request body:", req.body);
   const { userName, email, password } = req.body;
 
   if (!userName || !email || !password) {
@@ -39,6 +43,15 @@ export const register = async (req, res) => {
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+//send mail
+    await nodemailer.sendMail({
+      from:process.env.SMTP_MAIL,
+      to:email,
+      subject:"Welcome to WEBDEV",
+      text:`Your account has been created with email id :${email}`
+
+    });
+
 
     return res.status(200).json({
       success: true,
@@ -96,6 +109,8 @@ export const login = async (req, res) => {
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+    //sending welcome email
+
 
     return res.status(200).json({
       success: true,
