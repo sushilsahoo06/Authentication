@@ -1,19 +1,25 @@
 import express from "express";
-import { register, login, logout, authMiddleware } from "../controller/Auth.js";
-
+import {
+  register,
+  login,
+  logout,
+  authMiddleware,
+  sendVerifyOtp,
+  verifyEmail,
+  isAuthenticated,
+  resetOtp,
+  ResetPassword,
+} from "../controller/Auth.js";
 
 const router = express.Router();
 
 router.post("/register", register);
 router.post("/login", login);
 router.post("/logout", logout);
-router.get("/check-auth", authMiddleware, (req, res) => {
-  const user = req.user;
-  res.status(200).json({
-    success: true,
-    message: "Authenticated user!",
-    user,
-  });
-});
+router.post("/send-verify-otp", authMiddleware, sendVerifyOtp);
+router.post("/verify-account", authMiddleware, verifyEmail);
+router.post("/is-auth", authMiddleware, isAuthenticated);
+router.post("/reset-OTP", authMiddleware, resetOtp);
+router.post("/reset-Password", authMiddleware, ResetPassword);
 
 export default router;

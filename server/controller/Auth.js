@@ -7,9 +7,7 @@ dotenv.config();
 
 // Register
 export const register = async (req, res) => {
-  console.log("Request body:", req.body);
   const { userName, email, password } = req.body;
-
   if (!userName || !email || !password) {
     return res
       .status(400)
@@ -76,7 +74,7 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.json({
+    return res.status(400).json({
       success: false,
       message: "Email and Password required!",
     });
@@ -151,40 +149,28 @@ export const logout = async (req, res) => {
   }
 };
 
-// Middleware
-export const authMiddleware = async (req, res, next) => {
-  const token = req.cookies.token;
-
-  if (!token) {
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorized user!",
-    });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    console.error("Unauth Error:", error);
-    return res.status(401).json({
-      success: false,
-      message: "Invalid or expired token",
-    });
-  }
-};
-
 export const sendVerifyOtp = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.userId;
+
+    if (!userId) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Authentication ID required." });
+    }
     const user = await User.findById(userId);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found!" });
+    }
     if (user.isAccountVerified) {
       return res.json({ success: false, message: "Account Already verified" });
     }
     const otp = String(Math.floor(100000 + Math.random() * 900000));
     user.verifyOTP = otp;
-    user.verifyOTPExpireAt = Date.now() + 60 * 1000;
+    user.verifyOTPExpireAt = Date.now() + 60 * 60 * 1000;
 
     const verifyUser = await user.save();
 
@@ -205,49 +191,102 @@ export const sendVerifyOtp = async (req, res) => {
     });
   } catch (error) {
     console.error("Unauth Error:", error);
-    return res.status(401).json({
+    return res.status(500).json({
+      success: false,
+      message: "Invalid or expired token",
+    });
+  }
+};
+//verify OTP
+export const verifyEmail = async (req, res) => {
+  const { otp } = req.body;
+  const userId = req.userId;
+  if (!userId || !otp) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing Details",
+    });
+  }
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    if (!user.verifyOTP || user.verifyOTP !== otp) {
+      return res.status(404).json({
+        success: false,
+        message: "Invalid OTP",
+      });
+    }
+
+    if (user.verifyOTPExpireAt < Date.now()) {
+      return res.status(202).json({
+        success: false,
+        message: "OTP Expired",
+      });
+    }
+    user.isAccountVerified = true;
+    user.verifyOTP = null;
+    user.verifyOTPExpireAt = null;
+
+    const verifyUser = await user.save();
+    return res.status(200).json({
+      success: true,
+      message: "Email verified Successfully",
+      user: {
+        id: verifyUser._id,
+        userName: verifyUser.userName,
+        email: verifyUser.email,
+      },
+    });
+  } catch (error) {
+    console.error("Unauth Error:", error);
+    return res.status(500).json({
       success: false,
       message: "Invalid or expired token",
     });
   }
 };
 
-export const verifyEmail = async (req, res) => {
-  const { userId, otp } = req.body;
-  if (!userId || !otp) {
-    return res.status(202).json({
+// Middleware
+export const authMiddleware = async (req, res, next) => {
+  const { token } = req.cookies;
+
+  if (!token) {
+    return res.status(400).json({
       success: false,
-      message: "Missing Details",
+      message: "Unauthorized user!",
     });
   }
+
   try {
-    const user = await User.findById({ userId });
-    if(!user){
-      return res.status(202).json({
-        success:false,
-        message:"User not found."
-      })
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.id) {
+      req.userId = decoded.id;
+    } else {
+      return res.json({
+        success: false,
+        message: "Not authorizied. Login again.",
+      });
     }
+    next();
+  } catch (error) {
+    console.error("Unauth Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Invalid or expired token",
+    });
+  }
+};
 
-    if(!user.verifyOTP === '' || !user.verifyOTP !== otp){
-      return res.status(202).json({
-        success:false,
-        message:"Invalid OTP"
-      })
-    }
-
-
-    if(user.verifyOTPExpireAt < Date.now()){
-       return res.status(202).json({
-        success:false,
-        message:"OTP Expired"
-      })
-    }
-    user.isAccountVerified=true;
-    user.verifyOTP='';
-    user.verifyOTPExpireAt=''
-
-    const verifyUser=await user.save()
+export const isAuthenticated = async (req, res) => {
+  try {
+    return res.status(200).json({ success: true });
   } catch (error) {
     console.error("Unauth Error:", error);
     return res.status(401).json({
@@ -305,7 +344,7 @@ export const resetOtp = async (req, res) => {
 
 //Reset password
 export const ResetPassword = async (req, res) => {
-  const { otp, email, newPassword } = req.body;
+  const {email,otp, newPassword } = req.body;
   if (!otp || !email || !newPassword) {
     return res.status(400).json({
       success: false,
@@ -320,7 +359,7 @@ export const ResetPassword = async (req, res) => {
         message: "User not found or OTP is invalid.",
       });
     }
-    if (!user.resetOtpExpireAt || user.resetOtpExpireAt !== otp) {
+    if (!user.resetOtpExpireAt || user.resetOtpExpireAt < Date.now()) {
       return res.status(400).json({
         success: false,
         message: "OTP has expired. Please request a new one.",
