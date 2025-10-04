@@ -1,9 +1,9 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import nodemailer from '../config/nodemailer.js'
-import dotenv from 'dotenv'
-dotenv.config()
+import nodemailer from "../config/nodemailer.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 // Register
 export const register = async (req, res) => {
@@ -11,7 +11,9 @@ export const register = async (req, res) => {
   const { userName, email, password } = req.body;
 
   if (!userName || !email || !password) {
-    return res.status(400).json({ success: false, message: "Some error occurred!" });
+    return res
+      .status(400)
+      .json({ success: false, message: "Some error occurred!" });
   }
 
   try {
@@ -43,15 +45,13 @@ export const register = async (req, res) => {
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-//send mail
+    //send mail
     await nodemailer.sendMail({
-      from:process.env.SMTP_MAIL,
-      to:email,
-      subject:"Welcome to WEBDEV",
-      text:`Your account has been created with email id :${email}`
-
+      from: process.env.SMTP_MAIL,
+      to: email,
+      subject: "Welcome to WEBDEV",
+      text: `Your account has been created with email id :${email}`,
     });
-
 
     return res.status(200).json({
       success: true,
@@ -111,7 +111,6 @@ export const login = async (req, res) => {
     });
     //sending welcome email
 
-
     return res.status(200).json({
       success: true,
       message: "Login successful",
@@ -167,6 +166,88 @@ export const authMiddleware = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
+  } catch (error) {
+    console.error("Unauth Error:", error);
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired token",
+    });
+  }
+};
+
+export const sendVerifyOtp = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const user = await User.findById(userId);
+    if (user.isAccountVerified) {
+      return res.json({ success: false, message: "Account Already verified" });
+    }
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    user.verifyOTP = otp;
+    user.verifyOTPExpireAt = Date.now() + 60 * 1000;
+
+    const verifyUser = await user.save();
+
+    await nodemailer.sendMail({
+      from: process.env.SMTP_MAIL,
+      to: verifyUser.email,
+      subject: "Account verify OTP",
+      text: `Your OTP is ${otp}.Verify your account using this OTP.`,
+    });
+    return res.status(200).json({
+      success: true,
+      message: "Verification OTP",
+      user: {
+        id: verifyUser._id,
+        userName: verifyUser.userName,
+        email: verifyUser.email,
+      },
+    });
+  } catch (error) {
+    console.error("Unauth Error:", error);
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired token",
+    });
+  }
+};
+
+export const verifyEmail = async (req, res) => {
+  const { userId, otp } = req.body;
+  if (!userId || !otp) {
+    return res.status(202).json({
+      success: false,
+      message: "Missing Details",
+    });
+  }
+  try {
+    const user = await User.findById({ userId });
+    if(!user){
+      return res.status(202).json({
+        success:false,
+        message:"User not found."
+      })
+    }
+
+    if(!user.verifyOTP === '' || !user.verifyOTP !== otp){
+      return res.status(202).json({
+        success:false,
+        message:"Invalid OTP"
+      })
+    }
+
+
+    if(user.verifyOTPExpireAt < Date.now()){
+       return res.status(202).json({
+        success:false,
+        message:"OTP Expired"
+      })
+    }
+    user.isAccountVerified=true;
+    user.verifyOTP='';
+    user.verifyOTPExpireAt=''
+
+    const verifyUser=await user.save()
   } catch (error) {
     console.error("Unauth Error:", error);
     return res.status(401).json({

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-  userName: { type: String, required: true }, // ✅ match your controller (it used userName, not name)
+  userName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   verifyOTP: { type: String, default: "" },
