@@ -256,3 +256,110 @@ export const verifyEmail = async (req, res) => {
     });
   }
 };
+
+//send password reset otp
+export const resetOtp = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: "user not found.",
+    });
+  }
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    user.resetOtp = otp;
+    user.resetOtpExpireAt = Date.now() + 15 * 60 * 1000;
+    const resetOtpUser = await user.save();
+
+    await nodemailer.sendMail({
+      from: process.env.SMTP_MAIL,
+      to: resetOtpUser.email,
+      subject: "Reset OTP.",
+      text: `Your OTP is ${otp}.Verify your account using this OTP.`,
+    });
+    return res.status(200).json({
+      success: true,
+      message: "Verification OTP",
+      user: {
+        id: resetOtpUser._id,
+        userName: resetOtpUser.userName,
+        email: resetOtpUser.email,
+      },
+    });
+  } catch (error) {
+    console.error("Unauth Error", error);
+    return res.status(500).json({
+      success: false,
+      message: "Invalid or Expire token.",
+    });
+  }
+};
+
+//Reset password
+export const ResetPassword = async (req, res) => {
+  const { otp, email, newPassword } = req.body;
+  if (!otp || !email || !newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "Email, OTP, and new password are required.",
+    });
+  }
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found or OTP is invalid.",
+      });
+    }
+    if (!user.resetOtpExpireAt || user.resetOtpExpireAt !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP has expired. Please request a new one.",
+      });
+    }
+    if (user.resetOtpExpireAt < Date.now()) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP Expired.",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password=hashedPassword
+    user.resetOtp=null
+    user.resetOtpExpireAt=null
+
+    const savedUser=await user.save();
+    await nodemailer.sendMail({
+      from: process.env.SMTP_MAIL,
+      to: email,
+      subject: "Welcome to WEBDEV",
+      text: "Your password has been successfully changed. If you did not initiate this change, please contact support immediately.",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset successful. You can now log in.",
+      user: {
+        id: savedUser._id,
+        userName: savedUser.userName,
+        email: savedUser.email,
+      },
+    });
+  } catch (error) {
+    console.log("Unauth Error", error);
+    return res.status(500).json({
+      success: false,
+      message: "Invalid or Expire token.",
+    });
+  }
+};
