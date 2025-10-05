@@ -22,4 +22,5 @@ router.post("/is-auth", authMiddleware, isAuthenticated);
 router.post("/reset-OTP", authMiddleware, resetOtp);
 router.post("/reset-Password", authMiddleware, ResetPassword);
 
+
 export default router;
