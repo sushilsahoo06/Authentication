@@ -1,0 +1,33 @@
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOMIterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    
+    // Allows TypeScript to read and use JSX files
+    "allowJs": true, 
+    "jsx": "react-jsx", 
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+
+    /* CRITICAL: Alias Configuration for shadcn/ui */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"] 
+    },
+
+    /* General Linting (Recommended) */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
