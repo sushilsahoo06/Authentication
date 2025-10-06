@@ -42,15 +42,19 @@ export default function Login() {
           setFormData={setformData}
           onSubmit={handleLoginSubmit} // Passing the submission handler
         />
-        <p className="cursor-pointer text-indigo-500">
-          Forgate Password?
-        </p>
+        <p className="cursor-pointer text-indigo-500">Forgate Password?</p>
         <Button
           className="mt-3 w-full bg-white text-[#33A5C0] font-semibold hover:bg-gray-200 transition"
           type="submit"
         >
           {state}
         </Button>
+
+        <div>
+          <p className="text-xs mt-1 text-center text-gray-900">
+            Already have an Account? <span className="cursor-pointer underline text-indigo-500">Login here</span>
+          </p>
+        </div>
       </div>
     </div>
   );
