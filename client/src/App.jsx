@@ -21,13 +21,9 @@
 // //   )
 // // }
 
-
 // // Conceptual App.jsx (or wherever you define your router)
 // import { createBrowserRouter, RouterProvider } from "react-router-dom";
 // import Navbar from './components/Navbar'
-
-
-
 
 // const router = createBrowserRouter([
 //   {
@@ -57,58 +53,64 @@
 //   );
 // }
 
-import React from 'react';
+import React from "react";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
-import Navbar from './components/Navbar';
-import Layout from './components/auth/Layout'; 
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Emailverify from './pages/Emailverify';
-import ResetPassword from './pages/ResetPassword';
-import Register from './pages/Register';
-
+import Navbar from "./components/Navbar";
+import Layout from "./components/auth/Layout";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Emailverify from "./pages/Emailverify";
+import ResetPassword from "./pages/ResetPassword";
+import Register from "./pages/Register";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const router = createBrowserRouter([
-    {
-        path: '/', 
-        element: (
-            <>
-                <Navbar /> 
-                <Outlet /> 
-            </>
-        ), 
-        children: [
-            {
-                index: true, 
-                element: <Home />,
-            },
-        ]
-    },
-    {
-        path: '/auth',
-        element: <Layout />,
-        children: [
-            {
-                path: 'Register', 
-                element: <Login />,
-            },
-            {
-              path:"login",
-              element:<Register/>
-            },
-            {
-                path: 'email-verify', 
-                element: <Emailverify />,
-            },
-            {
-                path: 'reset-password', 
-                element: <ResetPassword />,
-            },
-        ],
-    },
+  {
+    path: "/",
+    element: (
+      <>
+        <Navbar />
+        <Outlet />
+      </>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Home />,
+      },
+    ],
+  },
+  {
+    path: "/auth",
+    element: <Layout />,
+    children: [
+      {
+        path: "Register",
+        element: <Login />,
+      },
+      {
+        path: "login",
+        element: <Register />,
+      },
+      {
+        path: "email-verify",
+        element: <Emailverify />,
+      },
+      {
+        path: "reset-password",
+        element: <ResetPassword />,
+      },
+    ],
+  },
 ]);
 
 export default function App() {
-    // ONLY ONE ROUTERPROVIDER HERE. No other router tags.
-    return <RouterProvider router={router} />;
+  return (
+    <>
+      
+      <RouterProvider router={router} />,
+      <ToastContainer position="top-right" autoClose={3000} />{" "}
+    </>
+  );
 }
