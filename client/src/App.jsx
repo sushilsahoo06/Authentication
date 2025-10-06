@@ -65,6 +65,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Emailverify from './pages/Emailverify';
 import ResetPassword from './pages/ResetPassword';
+import Register from './pages/Register';
 
 
 const router = createBrowserRouter([
@@ -88,8 +89,12 @@ const router = createBrowserRouter([
         element: <Layout />,
         children: [
             {
-                path: 'login', 
+                path: 'Register', 
                 element: <Login />,
+            },
+            {
+              path:"login",
+              element:<Register/>
             },
             {
                 path: 'email-verify', 
