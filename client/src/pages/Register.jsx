@@ -39,14 +39,9 @@ export default function Register() {
           formData={formData}
           setFormData={setformData}
           onSubmit={handleLoginSubmit} // Passing the submission handler
+          buttonText={"Login"}
         />
-        <p className="cursor-pointer text-indigo-500">Forgate Password?</p>
-        <Button
-          className="mt-3 w-full bg-white text-[#33A5C0] font-semibold hover:bg-gray-200 transition"
-          type="submit"
-        >
-          Login
-        </Button>
+        <p className="cursor-pointer text-indigo-500 mt-1">Forgate Password?</p>
 
         <div>
           <p className="text-xs mt-1 text-center text-gray-900">

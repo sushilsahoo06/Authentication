@@ -1,12 +1,12 @@
 import { assets } from "@/assets/assets";
 import CommonForm from "@/components/CommonForm";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button"; // Button is no longer needed here
 import { registationFromControls } from "@/config";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 const initialState = {
-  userName:"",
+  userName: "",
   email: "",
   password: "",
 };
@@ -15,8 +15,8 @@ export default function Login() {
   const [formData, setformData] = useState(initialState);
 
   const handleLoginSubmit = (event) => {
-    event.preventDefault();
-    console.log("Login Data:", formData);
+    event.preventDefault(); // This is called by the form's onSubmit event
+    console.log("Register data:", formData);
   };
 
   return (
@@ -31,32 +31,22 @@ export default function Login() {
         <h2 className="text-3xl font-bold text-white mb-6 text-center">
           Create Account
         </h2>
-        <p className="text-center text-sm mb-3">
-          Create Your Account
-        </p>
+        <p className="text-center text-sm mb-3">Create Your Account</p>
 
         <CommonForm
           formControls={registationFromControls}
           formData={formData}
           setFormData={setformData}
           onSubmit={handleLoginSubmit} // Passing the submission handler
+          buttonText={"SignUp"}
         />
-        <p className="cursor-pointer text-indigo-500">Forgate Password?</p>
-        <Button
-          className="mt-3 w-full bg-white text-[#33A5C0] font-semibold hover:bg-gray-200 transition"
-          type="submit"
-        >
-          Sign Up
-        </Button>
+        <p className="cursor-pointer text-indigo-500 mt-1">Forgate Password?</p>
 
         <div>
           <p className="text-xs mt-1 text-center text-gray-900">
             Already have an Account?{" "}
             <span className="cursor-pointer underline text-indigo-500">
-              <Link to="/auth/login">
-                Login here
-              </Link>
-              
+              <Link to="/auth/login">Login here</Link>
             </span>
           </p>
         </div>
