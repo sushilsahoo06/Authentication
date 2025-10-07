@@ -28,14 +28,7 @@ export const registationFromControls=[
     logo:assets.lock_icon
 
   },
-  // {
-  //   name: 'otp', 
-  //   label: 'Verification Code (OTP)',
-  //   placeholder: 'Enter 6-digit OTP',
-  //   componentType: 'input', 
-  //   type: 'text',         
-  //   maxLength: 6,
-  // }
+
 ]
 
 

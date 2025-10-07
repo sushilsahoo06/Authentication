@@ -16,26 +16,47 @@ const initialState = {
 
 export default function Login() {
   const [formData, setformData] = useState(initialState);
+  console.log(formData);
+
   const navigate = useNavigate();
-  const { backendURL, setisLoggedin } = useContext(AppContent);
+  const { backendURL, setisLoggedin,getUserData } = useContext(AppContent);
 
   const handleLoginSubmit = async (event) => {
     try {
       event.preventDefault();
-      axios.defaults.withCredentials=true;
-      const { data } = await axios.post(`${backendURL}/api/auth/register`, 
-        formData);
+      axios.defaults.withCredentials = true;
+      const { data } = await axios.post(
+        `${backendURL}/api/auth/register`,
+        formData,
+        {
+          validateStatus: () => true,
+        }
+      );
+
+
       if (data.success) {
         setisLoggedin(true);
+        getUserData()
         navigate("/");
-        toast(data.message)
+        
+        console.log(data.message);
+        toast(data.message);
       } else {
+        console.log(data.message);
+
         toast.error(data.message);
       }
       console.log("Register data:", formData);
     } catch (error) {
-      console.error("Registration error:",error)
-      toast.error("An error occurred during login.");
+      console.error("Axios error:", error);
+      if (error.response) {
+        console.log("Server responded with:", error.response.data);
+      } else if (error.request) {
+        console.log("No response received:", error.request);
+      } else {
+        console.log("Error setting up request:", error.message);
+      }
+      toast.error("An error occurred during registration.");
     }
   };
 
