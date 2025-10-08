@@ -296,7 +296,7 @@ export const isAuthenticated = async (req, res) => {
   }
 };
 
-//send password reset otp
+//send otp for reset password
 export const resetOtp = async (req, res) => {
   const { email } = req.body;
   if (!email) {

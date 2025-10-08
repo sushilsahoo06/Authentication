@@ -36,7 +36,6 @@ export default function Login() {
 
       if (data.success) {
         setisLoggedin(true);
-        getUserData()
         navigate("/");
         
         console.log(data.message);

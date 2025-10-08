@@ -28,7 +28,6 @@ export default function Register() {
       );
       if (data.success) {
         setisLoggedin(true);
-        getUserdata()
         navigate("/");
         console.log(data.message);
         
