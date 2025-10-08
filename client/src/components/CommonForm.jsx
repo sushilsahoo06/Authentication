@@ -51,9 +51,6 @@ export default function CommonForm({
 
   return (
     <form onSubmit={onSubmit} className="w-full">
-      {/* FINAL ATTEMPT: Using a standard <style> block to inject the high-priority CSS 
-        to override browser autofill styles, which cause the white background/line.
-      */}
       <style>{`
         input:-webkit-autofill,
         input:-webkit-autofill:hover, 
