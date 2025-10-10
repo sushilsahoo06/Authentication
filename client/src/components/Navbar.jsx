@@ -19,27 +19,28 @@ export default function Navbar() {
   const { userData, setuserData, setisLoggedin, backendURL } =
     useContext(AppContent);
 
-  const verifyEmail=async()=>{
+  const verifyEmail = async () => {
     try {
-      axios.defaults.withCredentials=true;
-      const {data}=await axios.post(`${backendURL}/api/auth/send-verify-otp`,{validateStatus:()=>true});
+      axios.defaults.withCredentials = true;
+      const { data } = await axios.post(
+        `${backendURL}/api/auth/send-verify-otp`,
+        { validateStatus: () => true }
+      );
 
-      if(data.success){
-        navigate("/send-verify-otp")
-        toast(data.message)
-      }else{
-        toast(data.message)
+      if (data.success) {
+        navigate("/send-verify-otp");
+        toast(data.message);
+      } else {
+        toast(data.message);
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.message);
     }
-  }
+  };
   const logout = async () => {
     try {
-      axios.defaults.withCredentials = false;
-      const { data } = await axios.post(`${backendURL}/api/auth/logout`, {
-        validateStatus: () => false,
-      });
+      axios.defaults.withCredentials = true;
+      const { data } = await axios.post(`${backendURL}/api/auth/logout`, {});
       if (data.success) {
         setuserData(null);
         setisLoggedin(false);
@@ -71,7 +72,7 @@ export default function Navbar() {
               </DropdownMenuLabel>
             )}
             {!userData.isAccountVerified && <DropdownMenuSeparator />}
-            
+
             <DropdownMenuLabel className="text-xl" onClick={logout}>
               Logout
             </DropdownMenuLabel>
@@ -79,7 +80,7 @@ export default function Navbar() {
         </DropdownMenu>
       ) : (
         <button
-          onClick={() => navigate("/auth/Register")} 
+          onClick={() => navigate("/auth/Register")}
           className="flex items-center gap-2 border broder-gray-500 rounded-full px-6 py-2 hover:bg-gray-100 transition-all "
         >
           Login <img src={assets.arrow_icon} />

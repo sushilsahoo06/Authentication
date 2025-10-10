@@ -2,55 +2,55 @@ import React from "react";
 import { Button } from "./ui/button";
 
 const type = {
-  INPUT: "input",
+  INPUT: "input",
 };
 
 export default function CommonForm({
-  formControls,
-  formData,
-  setFormData,
-  onSubmit,
-  buttonText
-
+  formControls,
+  formData,
+  setFormData,
+  onSubmit,
+  buttonText,
 }) {
-  function renderInputByComponentType(getControlItem) {
-    let element = null;
+  function renderInputByComponentType(getControlItem) {
+    let element = null;
 
-    const value = formData[getControlItem.name] || "";
-    // Destructure the logo property from the control item
-    const { logo, ...restProps } = getControlItem; 
+    const value = formData[getControlItem.name] || ""; // Destructure the logo property from the control item
+    const { logo, ...restProps } = getControlItem;
 
-    switch (getControlItem.componentType) {
-      case type.INPUT:
-        element = (
-          <div className={`mb-4 flex items-center w-full px-5 py-2.5 rounded-full bg-[#33A5C0] ${logo ? 'gap-3' : ''}`}>
-            {logo && <img src={logo} alt="Input Icon" className="w-5 h-5" />}
-            
-            <input 
-              // Keep the aggressive Tailwind classes for focus removal
-              className="bg-transparent border-transparent w-full text-white outline-none shadow-none 
+    switch (getControlItem.componentType) {
+      case type.INPUT:
+        element = (
+          <div
+            className={`mb-4 flex items-center w-full px-5 py-2.5 rounded-full bg-[#33A5C0] ${
+              logo ? "gap-3" : ""
+            }`}
+          >
+            {logo && <img src={logo} alt="Input Icon" className="w-5 h-5" />}
+            <input // Keep the aggressive Tailwind classes for focus removal
+              className="bg-transparent border-transparent w-full text-white outline-none shadow-none 
                          focus:outline-none focus:ring-0 focus:shadow-none focus:border-transparent"
-              name={getControlItem.name}
-              placeholder={getControlItem.placeholder}
-              id={getControlItem.name}
-              type={getControlItem.type}
-              value={value}
-              onChange={(event) =>
-                setFormData({
-                  ...formData,
-                  [getControlItem.name]: event.target.value,
-                })
-              }
-            />
-          </div>
-        );
-        break;
-    }
-    return element;
-  }
+              name={getControlItem.name}
+              placeholder={getControlItem.placeholder}
+              id={getControlItem.name}
+              type={getControlItem.type}
+              value={value}
+              onChange={(event) =>
+                setFormData({
+                  ...formData,
+                  [getControlItem.name]: event.target.value,
+                })
+              }
+            />
+          </div>
+        );
+        break;
+    }
+    return element;
+  }
 
-  return (
-    <form onSubmit={onSubmit} className="w-full">
+  return (
+    <form onSubmit={onSubmit} className="w-full">
       <style>{`
         input:-webkit-autofill,
         input:-webkit-autofill:hover, 
@@ -65,21 +65,21 @@ export default function CommonForm({
           outline: 0 !important;
         }
       `}</style>
-      <div className="flex flex-col ">
-        
-        {formControls.map((controlItem) => {
-          return (
-            <div className="grid w-full " key={controlItem.name}>
-              {renderInputByComponentType(controlItem)}
-            </div>
-          );
-        })}
-      </div>
-      <Button type="submit" className="mt-3 w-full bg-white text-[#33A5C0] font-semibold hover:bg-gray-200 transition">
-        {buttonText || "submit"}
-      </Button>
-
-
-    </form>
-  );
+      <div className="flex flex-col ">
+        {formControls.map((controlItem) => {
+          return (
+            <div className="grid w-full " key={controlItem.name}>
+              {renderInputByComponentType(controlItem)}{" "}
+            </div>
+          );
+        })}
+      </div>
+      <Button
+        type="submit"
+        className="mt-3 w-full bg-white text-[#33A5C0] font-semibold hover:bg-gray-200 transition"
+      >
+        {buttonText || "submit"}
+      </Button>
+    </form>
+  );
 }
